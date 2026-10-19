@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>勇者討伐惡龍｜AI 知識大冒險</title>
+<style>
+:root{--ink:#182238;--panel:#24324a;--cream:#fff3cf;--gold:#ffd166;--green:#78dba9;--red:#ff6b6b;--blue:#83d8ff}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:#121b2b;color:var(--cream);font-family:"Courier New",monospace;display:flex;justify-content:center;align-items:center;padding:18px;background-image:linear-gradient(#ffffff08 1px,transparent 1px),linear-gradient(90deg,#ffffff08 1px,transparent 1px);background-size:24px 24px}
+button,input{font:inherit}
+button{cursor:pointer;border:3px solid #111a2a;background:var(--gold);color:#1a2437;padding:12px 18px;font-weight:bold;box-shadow:4px 4px 0 #0b1220;transition:transform .1s}
+button:hover{transform:translate(-1px,-1px);filter:brightness(1.08)}
+button:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #0b1220}
+button:disabled{opacity:.5;cursor:not-allowed}
+.game{width:min(980px,100%);border:4px solid #0a1020;background:#1a263b;box-shadow:0 0 0 4px #34445e,10px 10px 0 #080d16;overflow:hidden}
+.topbar{padding:13px 18px;background:#31435e;border-bottom:4px solid #0d1627;display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.logo{font-size:clamp(16px,3vw,23px);font-weight:bold;color:var(--gold);text-shadow:2px 2px #101827}
+.tag{font-size:12px;color:#c7d7ee}
+.screen{padding:clamp(18px,4vw,34px);display:none}.screen.active{display:block}
+.hero{text-align:center;max-width:680px;margin:auto}
+.pixel-title{font-size:clamp(26px,5vw,44px);line-height:1.25;color:var(--gold);text-shadow:3px 3px #9a4d36,5px 5px #0b1220;margin:10px 0 14px}
+.subtitle{line-height:1.8;color:#d5e0f0}
+.sprite-stage{height:210px;display:flex;align-items:center;justify-content:center;gap:clamp(12px,5vw,60px);margin:20px auto;position:relative;background:linear-gradient(#7fc7e8 0 60%,#547b5c 60% 100%);border:4px solid #0c1526;image-rendering:pixelated;overflow:hidden}
+.sprite-stage:before{content:"";position:absolute;left:0;right:0;bottom:0;height:35px;background:repeating-linear-gradient(90deg,#395d46 0 24px,#436b50 24px 48px)}
+.sprite{font-size:clamp(62px,12vw,100px);filter:drop-shadow(4px 5px 0 #162236);position:relative;z-index:1;image-rendering:pixelated}
+.knight{animation:bob 1s steps(2,end) infinite}.dragon{animation:dragonBob 1.3s steps(2,end) infinite}
+@keyframes bob{50%{transform:translateY(-7px)}}@keyframes dragonBob{50%{transform:translateY(5px) scale(1.03)}}
+.field{display:block;text-align:left;margin:22px auto 14px;max-width:420px}
+.field span{display:block;margin-bottom:8px;color:var(--blue);font-weight:bold}
+input{width:100%;padding:14px;border:3px solid #080f1d;background:#fff8e7;color:#172238;outline:none}
+input:focus{border-color:var(--gold)}
+.note{font-size:12px;color:#b9c8dc;line-height:1.7}
+.center{text-align:center}.primary{font-size:17px;min-width:210px}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
+.stat{background:#2c3b55;border:3px solid #0b1425;padding:12px}
+.stathead{display:flex;justify-content:space-between;gap:8px;font-weight:bold;margin-bottom:9px;align-items:center}
+.hpbar{height:18px;background:#101827;border:2px solid #0a1120;padding:2px}
+.hpfill{height:100%;width:100%;background:var(--green);transition:width .45s steps(8,end)}
+.hpfill.dragonhp{background:var(--red)}
+.arena{position:relative;display:flex;align-items:center;justify-content:space-around;min-height:190px;background:linear-gradient(#86d5ef 0 58%,#668c5c 58%);border:4px solid #0b1425;overflow:hidden}
+.arena:after{content:"";position:absolute;bottom:0;left:0;right:0;height:24px;background:repeating-linear-gradient(90deg,#456849 0 24px,#547b55 24px 48px)}
+.fighter{font-size:clamp(64px,11vw,100px);z-index:1;position:relative;filter:drop-shadow(4px 4px 0 #203047)}
+.fighter-label{position:absolute;top:12px;font-size:12px;font-weight:bold;color:#172238;background:#fff2c9;padding:5px 8px;border:2px solid #182238}
+.fighter-label.left{left:12px}.fighter-label.right{right:12px}
+.attack-knight{animation:slash .65s steps(4,end)}.attack-dragon{animation:counter .65s steps(4,end)}
+@keyframes slash{0%{transform:translateX(0) rotate(0)}30%{transform:translateX(45px) rotate(-15deg)}55%{transform:translateX(60px) rotate(15deg)}100%{transform:translateX(0) rotate(0)}}
+@keyframes counter{0%{transform:translateX(0)}35%{transform:translateX(-45px) rotate(-10deg)}60%{transform:translateX(-55px) rotate(10deg)}100%{transform:translateX(0)}}
+.hit{animation:hit .5s steps(2,end)}@keyframes hit{0%,100%{filter:brightness(1)}50%{filter:brightness(3) sepia(1)}}
+.questionbox{margin-top:18px;background:#fff3cf;color:#1a263b;border:4px solid #0b1425;padding:clamp(16px,3vw,24px)}
+.qmeta{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:#43516a;font-size:13px;font-weight:bold}
+.question{font-size:clamp(17px,2.4vw,22px);line-height:1.65;font-weight:bold;margin:16px 0}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.option{background:#fdf9ec;text-align:left;box-shadow:3px 3px 0 #c4b88f;border:2px solid #64718a;padding:12px;line-height:1.5;min-height:54px}
+.option:hover:not(:disabled){background:#ffe39a}.option.correct{background:#a9f0c6;border-color:#218451}.option.wrong{background:#ffb6b6;border-color:#b72f42}
+.feedback{min-height:54px;padding:12px 14px;margin-top:14px;background:#dfe9f6;color:#182238;line-height:1.65;border:2px solid #8b9bb3}
+.nextrow{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px}
+.result-icon{font-size:84px;margin:5px}
+.score{font-size:clamp(28px,5vw,42px);color:var(--gold);font-weight:bold;margin:12px}
+.result-card{max-width:620px;margin:20px auto;background:#2b3b55;border:4px solid #0b1425;padding:24px;text-align:center}
+.hidden{display:none!important}
+@media(max-width:600px){.stats{grid-template-columns:1fr;gap:8px}.arena{min-height:155px}.options{grid-template-columns:1fr}.screen{padding:16px}.topbar{padding:11px}.fighter-label{font-size:10px}.nextrow button{width:100%}}
+</style>
+</head>
+<body>
+<main class="game">
+  <header class="topbar"><div class="logo">⚔ AI KNOWLEDGE QUEST</div><div class="tag">PIXEL RPG · 10 QUESTIONS</div></header>
+  <section id="start" class="screen active">
+    <div class="hero">
+      <div class="tag">CHAPTER 01 · THE DRAGON'S LAIR</div>
+      <h1 class="pixel-title">勇者討伐惡龍</h1>
+      <p class="subtitle">傳說中的惡龍守護著知識之門。<br>回答 10 道人工智慧考題，展開你的討伐之旅！</p>
+      <div class="sprite-stage"><div class="sprite knight">🧙🏻‍♂️</div><div class="sprite dragon">🐉</div></div>
+      <label class="field"><span>輸入你的勇者暱稱</span><input id="nickname" maxlength="16" placeholder="例如：小勇者" autocomplete="nickname"></label>
+      <p class="note">規則：答對可攻擊惡龍，答錯則受到反擊。每題 10 分，答對 1 題造成 20 點傷害；雙方初始血量皆為 100。血量歸零即結束戰鬥。</p>
+      <button class="primary" id="startBtn">開始冒險 ▶</button>
+    </div>
+  </section>
+  <section id="battle" class="screen">
+    <div class="stats">
+      <div class="stat"><div class="stathead"><span>🛡️ <span id="heroName">勇者</span> HP</span><span id="heroHpText">100 / 100</span></div><div class="hpbar"><div id="heroHp" class="hpfill"></div></div></div>
+      <div class="stat"><div class="stathead"><span>🐉 惡龍 HP</span><span id="dragonHpText">100 / 100</span></div><div class="hpbar"><div id="dragonHp" class="hpfill dragonhp"></div></div></div>
+    </div>
+    <div class="arena">
+      <span class="fighter-label left" id="arenaHeroName">勇者</span><span class="fighter-label right">惡龍・炎影</span>
+      <div id="heroSprite" class="fighter">🧙🏻‍♂️</div><div id="dragonSprite" class="fighter">🐉</div>
+    </div>
+    <div class="questionbox">
+      <div class="qmeta"><span id="qCounter">QUEST 01 / 10</span><span id="scoreNow">目前得分：0</span></div>
+      <div id="question" class="question"></div><div id="options" class="options"></div>
+      <div id="feedback" class="feedback" aria-live="polite">選擇你的答案，決定這場戰鬥的命運！</div>
+      <div class="nextrow"><span id="battleHint" class="note">每題答對得 10 分</span><button id="nextBtn" disabled>下一題 ▶</button></div>
+    </div>
+  </section>
+  <section id="result" class="screen">
+    <div class="hero"><div class="tag">CHAPTER COMPLETE</div><h1 id="resultTitle" class="pixel-title">冒險結束</h1>
+      <div class="result-card"><div id="resultIcon" class="result-icon">🏆</div><div id="resultMessage" class="subtitle"></div><div id="finalScore" class="score">0 / 100</div><div id="resultStats" class="subtitle"></div><p id="resultDetail" class="note"></p><button id="restartBtn" class="primary">再次挑戰 ↻</button></div>
+    </div>
+  </section>
+</main>
+<script>
+const questions = [
+ {id:1, topic:"人工智慧基礎", q:"人工智慧是電腦科學的一個分支，人工智慧的英文縮寫是_____________。", opts:["BI","APP","DI","AI"], ans:3, source:"PDF 第 3 頁，第 50 題"},
+ {id:2, topic:"機器學習", q:"機器學習有三種主要的類型：監督學習、非監督學習和_____________學習，各自有著不同的特點。", opts:["自主","優化","重複","強化"], ans:3, source:"PDF 第 1 頁，第 3 題"},
+ {id:3, topic:"智慧家居", q:"智能家居的英文是_____________。", opts:["Internet home","Internet house","smart stay","smart home"], ans:3, source:"PDF 第 1 頁，第 5 題"},
+ {id:4, topic:"神經網路", q:"ANN 是一種模仿生物神經網路，其中的_____________扮演了生物神經模型中突觸的角色，用於調節一個神經元對另一個神經元的影響程度。", opts:["權重","輸出通道","輸入通道","細胞體"], ans:0, source:"PDF 第 1 頁，第 8 題"},
+ {id:5, topic:"自動駕駛", q:"國際自動機工程師學會(SAE International)定義的自動駕駛為六級，「完全自動駕駛」的車輛是指哪一級？", opts:["等級 0(Level 0)","等級 4(Level 4)","等級 5(Level 5)","等級 1(Level 1)"], ans:2, source:"PDF 第 1 頁，第 9 題"},
+ {id:6, topic:"機器學習應用", q:"強化學習使用機器的個別歷史和經驗來做出決定，其經典應用是_____________。", opts:["文字處理","遊戲娛樂","資料採擷","自動控制"], ans:1, source:"PDF 第 1 頁，第 10 題"},
+ {id:7, topic:"智慧家居", q:"智慧家居是以_____________為平臺，通過物聯網 IoT 技術將家中的各種設備連接到一起，實現智慧化的一種生態系統。", opts:["花園","社區","住宅","街道"], ans:2, source:"PDF 第 1 頁，第 11 題"},
+ {id:8, topic:"深度學習", q:"如果將人工智慧分成運算資源基礎、核心技術發展與應用領域等層次，深度學習(deep learning)是屬於_____________。", opts:["應用領域","核心技術發展","運算資源基礎、核心技術發展、應用領域等三者都有","運算資源基礎"], ans:1, source:"PDF 第 1 頁，第 14 題"},
+ {id:9, topic:"數位影像", q:"數位圖像是指用數位攝像機、掃描器等設備經過採樣和數位化得到的一個大的二維陣列，該陣列的元素稱為_____________，其值為一整數，稱為灰度值。", opts:["位元組(byte)","串流(stream)","位元圖(bit map)","圖元(pixel)"], ans:3, source:"PDF 第 1 頁，第 15 題"},
+ {id:10, topic:"工業 4.0", q:"第四次的工業革命(簡稱工業 4.0)是_____________的革命。", opts:["電氣化","機械化","信息化","智能化"], ans:3, source:"PDF 第 4 頁，第 69 題"}
+];
+const $=id=>document.getElementById(id);
+let nickname="勇者", index=0, heroHP=100, dragonHP=100, score=0, correctCount=0, answered=false;
+function showScreen(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$(id).classList.add("active")}
+function shuffleQuestions(){return [...questions].sort(()=>Math.random()-.5)}
+let runQuestions=[...questions];
+$("startBtn").addEventListener("click",()=>{
+ nickname=$("nickname").value.trim()||"無名勇者";
+ index=0;heroHP=100;dragonHP=100;score=0;correctCount=0;runQuestions=shuffleQuestions();
+ $("heroName").textContent=nickname;$("arenaHeroName").textContent=nickname;
+ updateHP();showScreen("battle");renderQuestion();
+});
+$("nickname").addEventListener("keydown",e=>{if(e.key==="Enter")$("startBtn").click()});
+function updateHP(){
+ $("heroHpText").textContent=`${heroHP} / 100`;$("dragonHpText").textContent=`${dragonHP} / 100`;
+ $("heroHp").style.width=heroHP+"%";$("dragonHp").style.width=dragonHP+"%";
+ $("scoreNow").textContent=`目前得分：${score}`;
+}
+function renderQuestion(){
+ answered=false;const q=runQuestions[index];
+ $("qCounter").textContent=`QUEST ${String(index+1).padStart(2,"0")} / 10`;
+ $("question").textContent=q.q;$("options").innerHTML="";
+ q.opts.forEach((opt,i)=>{const b=document.createElement("button");b.className="option";b.textContent=`${String.fromCharCode(65+i)}. ${opt}`;b.addEventListener("click",()=>answer(i,b));$("options").appendChild(b)});
+ $("feedback").textContent="選擇你的答案，決定這場戰鬥的命運！";$("nextBtn").disabled=true;
+ $("nextBtn").textContent=index===9?"查看結算 ▶":"下一題 ▶";
+ $("battleHint").textContent=`${q.topic}｜答對 +10 分`;
+}
+function answer(choice,button){
+ if(answered)return;answered=true;const q=runQuestions[index];const buttons=[...$("options").querySelectorAll("button")];buttons.forEach(b=>b.disabled=true);
+ if(choice===q.ans){
+   correctCount++;score+=10;dragonHP=Math.max(0,dragonHP-20);button.classList.add("correct");
+   $("feedback").textContent=`⚔ 攻擊成功！正確答案：${String.fromCharCode(65+q.ans)}. ${q.opts[q.ans]}。勇者對惡龍造成 20 點傷害！`;
+   $("heroSprite").classList.remove("attack-knight");$("dragonSprite").classList.remove("hit");void $("heroSprite").offsetWidth;$("heroSprite").classList.add("attack-knight");$("dragonSprite").classList.add("hit");
+ }else{
+   heroHP=Math.max(0,heroHP-20);button.classList.add("wrong");buttons[q.ans].classList.add("correct");
+   $("feedback").textContent=`💥 遭到反擊！正確答案：${String.fromCharCode(65+q.ans)}. ${q.opts[q.ans]}。惡龍對勇者造成 20 點傷害！`;
+   $("dragonSprite").classList.remove("attack-dragon");$("heroSprite").classList.remove("hit");void $("dragonSprite").offsetWidth;$("dragonSprite").classList.add("attack-dragon");$("heroSprite").classList.add("hit");
+ }
+ updateHP();$("nextBtn").disabled=false;
+ if(heroHP<=0||dragonHP<=0){$("nextBtn").textContent="查看戰鬥結果 ▶"}
+}
+$("nextBtn").addEventListener("click",()=>{
+ if(!answered)return;
+ if(heroHP<=0||dragonHP<=0||index===9){finishGame();return}
+ index++;renderQuestion();
+});
+function finishGame(){
+ const victory=dragonHP<=0&&heroHP>0;
+ showScreen("result");
+ $("resultTitle").textContent=victory?"討伐成功！":"冒險結束";
+ $("resultIcon").textContent=victory?"🏆":"💀";
+ $("resultMessage").textContent=victory?`太棒了，${nickname}！你成功擊敗惡龍，守護了知識王國！`:`${nickname}，這次挑戰尚未成功。磨練知識後，再來挑戰惡龍吧！`;
+ $("finalScore").textContent=`${score} / 100`;
+ $("resultStats").textContent=`答對 ${correctCount} / 10 題　｜　勇者 HP：${heroHP}　｜　惡龍 HP：${dragonHP}`;
+ $("resultDetail").textContent=victory?"你成功讓惡龍 HP 歸零！":"戰鬥結束條件：勇者 HP 歸零，或十題作答完畢時惡龍仍未被擊敗。";
+}
+$("restartBtn").addEventListener("click",()=>{ $("nickname").value=nickname==="無名勇者"?"":nickname;showScreen("start")});
+</script>
+</body>
+</html>
